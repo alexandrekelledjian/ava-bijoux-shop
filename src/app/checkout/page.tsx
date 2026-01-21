@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Header from '@/components/layout/Header'
@@ -11,7 +11,7 @@ import { AvaStar } from '@/components/ui/Logo'
 import { useCartStore, FRAIS_LIVRAISON, type ModeLivraison } from '@/lib/store/cart'
 import { ChevronLeft, Lock, CreditCard } from 'lucide-react'
 
-export default function CheckoutPage() {
+function CheckoutPageContent() {
   const searchParams = useSearchParams()
   const modeLivraison = (searchParams.get('livraison') || 'boutique') as ModeLivraison
 
@@ -360,4 +360,13 @@ export default function CheckoutPage() {
       <Footer />
     </div>
   )
+}
+
+export default function CheckoutPage() {
+    return (
+          <Suspense fallback={<div className="flex justify-center items-center min-h-screen">Chargement...</div>div>}>
+                <CheckoutPageContent />
+          </Suspense>
+        )
+}
 }
