@@ -1,0 +1,180 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Google Fonts - Charte graphique AVA */
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Quicksand:wght@300;400;500;600;700&display=swap');
+
+/* Polices pour gravure */
+@import url('https://fonts.googleapis.com/css2?family=Homemade+Apple&family=La+Belle+Aurore&family=Indie+Flower&family=Nothing+You+Could+Do&family=Montserrat:wght@400;500&display=swap');
+
+:root {
+  /* Palette AVA */
+  --ava-cream: #FDFFEB;
+  --ava-gold: #FFEEC2;
+  --ava-peach: #FFD7A1;
+  --ava-coral: #FFBB90;
+  --ava-anthracite: #454545;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: 'Quicksand', sans-serif;
+  background-color: var(--ava-cream);
+  color: var(--ava-anthracite);
+}
+
+/* Typographie - Charte AVA */
+h1, h2, h3 {
+  font-family: 'Raleway', sans-serif;
+}
+
+h4, h5, h6 {
+  font-family: 'Lato', sans-serif;
+}
+
+p, span, a, button, input, textarea, select, label {
+  font-family: 'Quicksand', sans-serif;
+}
+
+/* Scrollbar personnalisée */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ava-cream);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ava-gold);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ava-peach);
+}
+
+/* Animations */
+@keyframes sparkle {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.animate-sparkle {
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+/* Étoile AVA - symbole de la marque */
+.ava-star {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  background-color: currentColor;
+  clip-path: polygon(
+    50% 0%,
+    61% 35%,
+    98% 35%,
+    68% 57%,
+    79% 91%,
+    50% 70%,
+    21% 91%,
+    32% 57%,
+    2% 35%,
+    39% 35%
+  );
+}
+
+/* Style AVA pour les étoiles à 4 branches */
+.ava-diamond {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  background-color: currentColor;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+
+/* Bouton primaire AVA */
+@layer components {
+  .btn-ava-primary {
+    @apply bg-ava-coral text-ava-anthracite font-quicksand font-medium
+           px-6 py-3 rounded-full transition-all duration-300
+           hover:bg-ava-peach hover:shadow-lg
+           active:scale-95 focus:outline-none focus:ring-2 focus:ring-ava-coral focus:ring-offset-2;
+  }
+
+  .btn-ava-secondary {
+    @apply bg-ava-gold text-ava-anthracite font-quicksand font-medium
+           px-6 py-3 rounded-full transition-all duration-300
+           hover:bg-ava-peach hover:shadow-lg
+           active:scale-95 focus:outline-none focus:ring-2 focus:ring-ava-gold focus:ring-offset-2;
+  }
+
+  .btn-ava-outline {
+    @apply border-2 border-ava-anthracite text-ava-anthracite font-quicksand font-medium
+           px-6 py-3 rounded-full transition-all duration-300 bg-transparent
+           hover:bg-ava-anthracite hover:text-ava-cream
+           active:scale-95 focus:outline-none focus:ring-2 focus:ring-ava-anthracite focus:ring-offset-2;
+  }
+
+  /* Card AVA */
+  .card-ava {
+    @apply bg-white rounded-2xl shadow-md p-6 transition-all duration-300
+           hover:shadow-xl;
+  }
+
+  /* Input AVA */
+  .input-ava {
+    @apply w-full px-4 py-3 rounded-xl border-2 border-ava-gold
+           bg-white text-ava-anthracite font-quicksand
+           focus:outline-none focus:border-ava-coral focus:ring-2 focus:ring-ava-coral/20
+           transition-all duration-300;
+  }
+
+  /* Badge de statut */
+  .badge-ava {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+  }
+}
+
+/* Pattern de fond avec étoiles */
+.bg-ava-stars {
+  background-image: radial-gradient(var(--ava-gold) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+/* Sélection de texte */
+::selection {
+  background-color: var(--ava-coral);
+  color: var(--ava-anthracite);
+}
+
+/* Focus visible */
+:focus-visible {
+  outline: 2px solid var(--ava-coral);
+  outline-offset: 2px;
+}
+
+/* Mobile first - Touch targets */
+@media (max-width: 768px) {
+  .btn-ava-primary,
+  .btn-ava-secondary,
+  .btn-ava-outline {
+    min-height: 48px;
+    min-width: 48px;
+  }
+}

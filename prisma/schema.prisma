@@ -1,0 +1,218 @@
+// Schéma Prisma pour AVA Bijoux
+// Base de données PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// SALONS PARTENAIRES
+// ============================================
+
+model Salon {
+  id          String   @id @default(cuid())
+  codeUrl     String   @unique @map("code_url")
+  nom         String
+  adresse     String
+  codePostal  String   @map("code_postal")
+  ville       String
+  email       String   @unique
+  telephone   String
+  logoUrl     String?  @map("logo_url")
+  actif       Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  commandes   Commande[]
+  versements  Versement[]
+  magicLinks  MagicLink[]
+
+  @@map("salons")
+}
+
+// ============================================
+// PRODUITS
+// ============================================
+
+model Produit {
+  id            String   @id @default(cuid())
+  nom           String
+  description   String   @db.Text
+  prix          Decimal  @db.Decimal(10, 2)
+  imageUrl      String   @map("image_url")
+  mockupUrl     String   @map("mockup_url")
+  zoneGravure   Json     @map("zone_gravure") // { x, y, width, height, rotation }
+  actif         Boolean  @default(true)
+  ordre         Int      @default(0)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  lignesCommande LigneCommande[]
+
+  @@map("produits")
+}
+
+// ============================================
+// POLICES DE GRAVURE
+// ============================================
+
+model Police {
+  id              String   @id @default(cuid())
+  nomGoogleFonts  String   @map("nom_google_fonts")
+  actif           Boolean  @default(true)
+  ordre           Int      @default(0)
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  // Relations
+  lignesCommande  LigneCommande[]
+
+  @@map("polices")
+}
+
+// ============================================
+// COMMANDES
+// ============================================
+
+enum StatutCommande {
+  en_attente_paiement
+  payee
+  en_preparation
+  expediee
+  disponible_boutique
+  recuperee
+  annulee
+  remboursee
+}
+
+enum ModeLivraison {
+  boutique
+  mondial_relay_point
+  mondial_relay_domicile
+}
+
+model Commande {
+  id                String         @id @default(cuid())
+  numero            String         @unique
+  salonId           String         @map("salon_id")
+  statut            StatutCommande @default(en_attente_paiement)
+  modeLivraison     ModeLivraison  @map("mode_livraison")
+  prixTotal         Decimal        @db.Decimal(10, 2) @map("prix_total")
+  fraisLivraison    Decimal        @db.Decimal(10, 2) @default(0) @map("frais_livraison")
+  commission        Decimal        @db.Decimal(10, 2) // 30% du prix produits
+
+  // Informations client
+  clientEmail       String         @map("client_email")
+  clientTelephone   String         @map("client_telephone")
+  clientNom         String         @map("client_nom")
+  clientPrenom      String         @map("client_prenom")
+  clientAdresse     String?        @map("client_adresse")
+  clientCodePostal  String?        @map("client_code_postal")
+  clientVille       String?        @map("client_ville")
+
+  // Mondial Relay
+  pointRelaisId     String?        @map("point_relais_id")
+  pointRelaisNom    String?        @map("point_relais_nom")
+  pointRelaisAdresse String?       @map("point_relais_adresse")
+  numeroSuivi       String?        @map("numero_suivi")
+
+  // Stripe
+  stripePaymentId   String?        @map("stripe_payment_id")
+
+  // Dates
+  dateRecuperation  DateTime?      @map("date_recuperation")
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  salon             Salon          @relation(fields: [salonId], references: [id])
+  lignes            LigneCommande[]
+  historiqueStatuts HistoriqueStatut[]
+
+  @@map("commandes")
+}
+
+model LigneCommande {
+  id                    String   @id @default(cuid())
+  commandeId            String   @map("commande_id")
+  produitId             String   @map("produit_id")
+  policeId              String   @map("police_id")
+  textePersonnalisation String   @map("texte_personnalisation")
+  prixUnitaire          Decimal  @db.Decimal(10, 2) @map("prix_unitaire")
+  quantite              Int      @default(1)
+
+  // Relations
+  commande              Commande @relation(fields: [commandeId], references: [id], onDelete: Cascade)
+  produit               Produit  @relation(fields: [produitId], references: [id])
+  police                Police   @relation(fields: [policeId], references: [id])
+
+  @@map("lignes_commande")
+}
+
+model HistoriqueStatut {
+  id          String         @id @default(cuid())
+  commandeId  String         @map("commande_id")
+  statut      StatutCommande
+  commentaire String?
+  createdAt   DateTime       @default(now()) @map("created_at")
+
+  // Relations
+  commande    Commande       @relation(fields: [commandeId], references: [id], onDelete: Cascade)
+
+  @@map("historique_statuts")
+}
+
+// ============================================
+// VERSEMENTS COMMISSIONS
+// ============================================
+
+model Versement {
+  id              String   @id @default(cuid())
+  salonId         String   @map("salon_id")
+  montant         Decimal  @db.Decimal(10, 2)
+  dateVersement   DateTime @map("date_versement")
+  reference       String
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  // Relations
+  salon           Salon    @relation(fields: [salonId], references: [id])
+
+  @@map("versements")
+}
+
+// ============================================
+// AUTHENTIFICATION MAGIC LINK
+// ============================================
+
+model MagicLink {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  salonId   String   @map("salon_id")
+  expiresAt DateTime @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  salon     Salon    @relation(fields: [salonId], references: [id])
+
+  @@map("magic_links")
+}
+
+// ============================================
+// ADMIN
+// ============================================
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  nom       String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("admins")
+}
