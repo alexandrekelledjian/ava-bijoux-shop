@@ -142,11 +142,13 @@ export default function Logo({
 export function AvaStar({
   size = 16,
   color = '#454545',
-  className = ''
+  className = '',
+    style = {}
 }: {
   size?: number
   color?: string
   className?: string
+    style?: React.CSSProperties
 }) {
   return (
     <svg
@@ -156,6 +158,7 @@ export function AvaStar({
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
+            style={style}
     >
       <path
         d="M12 0 C13.2 8.4 15.6 10.8 24 12 C15.6 13.2 13.2 15.6 12 24 C10.8 15.6 8.4 13.2 0 12 C8.4 10.8 10.8 8.4 12 0Z"
